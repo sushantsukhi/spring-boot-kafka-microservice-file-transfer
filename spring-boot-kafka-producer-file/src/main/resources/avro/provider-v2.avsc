@@ -1,0 +1,10 @@
+{
+     "type": "record",
+     "namespace": "com.happycoding.model",
+     "name": "Provider",
+     "version": "2",
+     "fields": [
+       { "name": "id", "type": "int", "doc": "ID of Customer" },
+       { "name": "name", "type": "string", "doc": "Name of Customer" }
+     ]
+}
