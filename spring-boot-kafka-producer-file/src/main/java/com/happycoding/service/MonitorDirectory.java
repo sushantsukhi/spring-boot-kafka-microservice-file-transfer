@@ -24,6 +24,9 @@ public class MonitorDirectory {
 
 	@Value(value = "${directory.path}")
 	String directoryPath;
+	
+	private static final String EVEN_KEY = "EVEN######@%2";
+	private static final String ODD_KEY = "ODD######@i%2!0";
 
 	public void watchDirectory() {
 		System.out.println("MonitorDirectory::watchDirectory started..");
@@ -33,6 +36,7 @@ public class MonitorDirectory {
 			faxFolder.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
 
 			boolean valid = true;
+			int fileCounter = 0;
 			do {
 				WatchKey watchKey = watchService.take();
 
@@ -44,12 +48,18 @@ public class MonitorDirectory {
 						String fullPath = directoryPath + fileName;
 						List<String> processWordDocMsgs = wordReader.processWordDoc(fullPath);
 						if (!processWordDocMsgs.isEmpty()) {
+							// Commenting below as sending complete file as single message to Kafka-Topic
 							int no = 1;
-							kafkaProducer.send(fileName, fileName, no++);
+							//kafkaProducer.send(fileName, fileName, no++);
 							for (String msg : processWordDocMsgs) {
-								kafkaProducer.send(msg, fileName, no++);
+								// send message to specific partition on topic in odd-even fashion
+								if(fileCounter % 2 == 0)
+									kafkaProducer.send(msg, fileName, no++, EVEN_KEY);
+								else
+									kafkaProducer.send(msg, fileName, no++, ODD_KEY);
+								fileCounter++;	
 							}
-							kafkaProducer.send("EOF", fileName, no++);
+							//kafkaProducer.send("EOF", fileName, no++);
 						}
 					}
 				}
