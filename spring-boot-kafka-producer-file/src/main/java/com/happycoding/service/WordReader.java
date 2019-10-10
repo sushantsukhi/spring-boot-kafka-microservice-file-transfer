@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,15 @@ public class WordReader {
 		try {
 			fis = new FileInputStream(filename);
 			xdoc = new XWPFDocument(OPCPackage.open(fis));
-			// XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-			// text = extractor.getText();
+			
+			// Reads files and returns the complete content of it
+			XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+			String text = extractor.getText();
 			// System.out.println(text);
+			msgList.add(text);
 
-			List<XWPFParagraph> paragraphList = xdoc.getParagraphs();
+			// Reads Files by Para... line by line reading
+			/*List<XWPFParagraph> paragraphList = xdoc.getParagraphs();
 			if (!paragraphList.isEmpty()) {
 				for (XWPFParagraph paragraph : paragraphList) {
 					if (!StringUtils.isEmpty(paragraph.getText())) {
@@ -36,7 +41,7 @@ public class WordReader {
 						System.out.println("Line:" + paragraph.getText());
 					}
 				}
-			}
+			}*/
 		} catch (InvalidFormatException | IOException ex) {
 			ex.printStackTrace();
 		}
