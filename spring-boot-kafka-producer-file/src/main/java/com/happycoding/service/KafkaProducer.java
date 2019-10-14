@@ -17,18 +17,18 @@ public class KafkaProducer {
 	@Value("${topic.id}")
 	private String topicId;
 
-	@Async
+	@Async("taskExecutor")
 	public void send(String message, String fileName, Integer value) {
-		System.out.println("Current thread used for sending message to topic :" + Thread.currentThread().getName());
+		System.out.println( Thread.currentThread().getName() + " Thread used for sending message: " + fileName);
 		kafkaTemplate.send(topicId, fileName, new Provider(fileName, value, message));
-		System.out.println("Message sent to the Kafka Topic '" + topicId + "' Successfully");
+		System.out.println(fileName + " sent to the Kafka Topic '" + topicId + "' Successfully");
 	}
 	
 	
-	@Async
-	public void send(String message, String fileName, Integer value, String keyValue) {
-		System.out.println("Current thread used for sending message to topic :" + Thread.currentThread().getName());
-		kafkaTemplate.send(topicId, keyValue, new Provider(fileName, value, message));
-		System.out.println("Message sent to the Kafka Topic '" + topicId + "' Successfully");
+	@Async("taskExecutor")
+	public void send(String message, String fileName, Integer value, String keyValue, Integer partitionNumber) {
+		System.out.println( Thread.currentThread().getName() + " Thread used for sending message: " + fileName);
+		kafkaTemplate.send(topicId, partitionNumber,  keyValue, new Provider(fileName, value, message));
+		System.out.println(fileName + " sent to the Kafka Topic '" + topicId + "' Successfully");
 	}
 }
