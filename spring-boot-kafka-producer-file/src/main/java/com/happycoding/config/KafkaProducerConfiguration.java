@@ -42,10 +42,21 @@ public class KafkaProducerConfiguration {
 	@Bean(name = "taskExecutor")
 	public Executor taskExecutor() {
 		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(6);
+		executor.setMaxPoolSize(6);
+		executor.setQueueCapacity(100);
+		executor.setThreadNamePrefix("ProducerThread-");
+		executor.initialize();
+		return executor;
+	}
+	
+	@Bean(name = "dirExecutor")
+	public Executor dirExecutor() {
+		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(2);
 		executor.setMaxPoolSize(2);
 		executor.setQueueCapacity(100);
-		executor.setThreadNamePrefix("ProducerThread-");
+		executor.setThreadNamePrefix("DirThread-");
 		executor.initialize();
 		return executor;
 	}
