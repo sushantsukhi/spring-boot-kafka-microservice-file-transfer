@@ -1,71 +1,29 @@
 package com.happycoding.service;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class MonitorDirectory {
 
 	@Autowired
-	KafkaProducer kafkaProducer;
+	MonitorService monitorService;
 
-	@Autowired
-	WordReader wordReader;
-
-	@Value(value = "${directory.path}")
-	String directoryPath;
-	
-	private static final String EVEN_KEY = "EVEN######@%2";
-	private static final String ODD_KEY = "ODD######@i%2!0";
+	@Value(value = "${directory.paths}")
+	String directoryPaths;
 
 	public void watchDirectory() {
 		System.out.println("MonitorDirectory::watchDirectory started..");
-		Path faxFolder = Paths.get(directoryPath);
 		try {
-			WatchService watchService = FileSystems.getDefault().newWatchService();
-			faxFolder.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-
-			boolean valid = true;
-			int fileCounter = 0;
-			do {
-				WatchKey watchKey = watchService.take();
-
-				for (WatchEvent<?> event : watchKey.pollEvents()) {
-					// Kind<?> kind = event.kind();
-					if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
-						String fileName = event.context().toString();
-						System.out.println("File processing: " + fileName);
-						String fullPath = directoryPath + fileName;
-						List<String> processWordDocMsgs = wordReader.processWordDoc(fullPath);
-						if (!processWordDocMsgs.isEmpty()) {
-							// Commenting below as sending complete file as single message to Kafka-Topic
-							int no = 1;
-							//kafkaProducer.send(fileName, fileName, no++);
-							for (String msg : processWordDocMsgs) {
-								// send message to specific partition on topic in odd-even fashion
-								if(fileCounter % 2 == 0)
-									kafkaProducer.send(msg, fileName, no++, EVEN_KEY);
-								else
-									kafkaProducer.send(msg, fileName, no++, ODD_KEY);
-								fileCounter++;	
-							}
-							//kafkaProducer.send("EOF", fileName, no++);
-						}
-					}
+			if(!StringUtils.isEmpty(directoryPaths) && directoryPaths.contains(",")) {
+				int partitonNumber = 0;
+				for(String path:directoryPaths.split(",")) {
+					monitorService.watchDirectory(path, partitonNumber);
+					partitonNumber++;
 				}
-				valid = watchKey.reset();
-			} while (valid);
-
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
