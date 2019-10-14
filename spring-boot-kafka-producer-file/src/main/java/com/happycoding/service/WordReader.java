@@ -15,15 +15,20 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+
 @Service
 public class WordReader {
 
-	public List<String> processWordDoc(String filename) {
+	public static final String  str = "final";
+	
+	public List<String> processWordDoc(String filename) throws IOException {
 		List<String> msgList = new ArrayList<String>();
 		FileInputStream fis = null;
 		XWPFDocument xdoc = null;
 		try {
+			synchronized(str) {
 			fis = new FileInputStream(filename);
+			}
 			xdoc = new XWPFDocument(OPCPackage.open(fis));
 			
 			// Reads files and returns the complete content of it
@@ -44,6 +49,9 @@ public class WordReader {
 			}*/
 		} catch (InvalidFormatException | IOException ex) {
 			ex.printStackTrace();
+		}finally {
+			if(fis != null)
+				fis.close();
 		}
 		return msgList;
 	}
