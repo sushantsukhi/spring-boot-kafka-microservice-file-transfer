@@ -3,7 +3,11 @@ package com.happycoding.service;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,35 +27,34 @@ public class WordReader {
 	
 	public List<String> processWordDoc(String filename) throws IOException {
 		List<String> msgList = new ArrayList<String>();
-		FileInputStream fis = null;
+		InputStream fis = null;
 		XWPFDocument xdoc = null;
-		try {
-			synchronized(str) {
-			fis = new FileInputStream(filename);
-			}
-			xdoc = new XWPFDocument(OPCPackage.open(fis));
-			
-			// Reads files and returns the complete content of it
-			XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-			String text = extractor.getText();
-			// System.out.println(text);
-			msgList.add(text);
-
-			// Reads Files by Para... line by line reading
-			/*List<XWPFParagraph> paragraphList = xdoc.getParagraphs();
-			if (!paragraphList.isEmpty()) {
-				for (XWPFParagraph paragraph : paragraphList) {
-					if (!StringUtils.isEmpty(paragraph.getText())) {
-						msgList.add(paragraph.getText());
-						System.out.println("Line:" + paragraph.getText());
+		synchronized(str) {
+			try {
+				fis = Files.newInputStream(Paths.get(filename));
+				xdoc = new XWPFDocument(OPCPackage.open(fis));
+				// Reads files and returns the complete content of it
+				XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
+				String text = extractor.getText();
+				// System.out.println(text);
+				msgList.add(text);
+	
+				// Reads Files by Para... line by line reading
+				/*List<XWPFParagraph> paragraphList = xdoc.getParagraphs();
+				if (!paragraphList.isEmpty()) {
+					for (XWPFParagraph paragraph : paragraphList) {
+						if (!StringUtils.isEmpty(paragraph.getText())) {
+							msgList.add(paragraph.getText());
+							System.out.println("Line:" + paragraph.getText());
+						}
 					}
-				}
-			}*/
-		} catch (InvalidFormatException | IOException ex) {
-			ex.printStackTrace();
-		}finally {
-			if(fis != null)
-				fis.close();
+				}*/
+			} catch (InvalidFormatException | IOException ex) {
+				ex.printStackTrace();
+			}finally {
+				if(fis != null)
+					fis.close();
+			}
 		}
 		return msgList;
 	}
