@@ -7,13 +7,15 @@ public class Provider {
 
 	private String name;
 	private Integer id;
+	private String content;
 
 	public Provider() {
 	}
 
-	public Provider(String name, Integer id) {
+	public Provider(String name, Integer id, String content) {
 		this.name = name;
 		this.setId(id);
+		this.content = content;
 	}
 
 	public String getName() {
@@ -32,9 +34,17 @@ public class Provider {
 		this.id = id;
 	}
 
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
 	@Override
 	public String toString() {
-		return "Provider [name=" + name + ", id=" + id + "]";
+		return "Provider [name=" + name + ", id=" + id + ", content=" + content + "]";
 	}
 
 }
