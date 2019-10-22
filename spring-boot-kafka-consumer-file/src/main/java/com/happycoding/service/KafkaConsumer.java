@@ -31,7 +31,7 @@ public class KafkaConsumer {
 			@Header(KafkaHeaders.RECEIVED_TIMESTAMP) long ts,
 			@Header(KafkaHeaders.RECEIVED_TOPIC) String topic, Provider provider) {
 
-		if (map.containsKey(key)) {
+		/*if (map.containsKey(key)) {
 			if ("EOF".equals(provider.getName())) {
 				wordCreator.createWordDoc(map.get(key));
 				map.clear();
@@ -41,8 +41,16 @@ public class KafkaConsumer {
 		} else {
 			List<String> list = new ArrayList<String>();
 			list.add(provider.getName());
+			list.add(provider.getContent());
 			map.put(key, list);
-		}
+		}*/
+		
+		List<String> list = new ArrayList<String>();
+		list.add(provider.getName());
+		list.add(provider.getContent());
+		
+		wordCreator.createWordDoc(list);
+		
 		System.out.println("Consumed JSON key:" + key);
 		System.out.println("Consumed JSON partition:" + partition);
 		System.out.println("Consumed JSON timestamp:" + ts);
