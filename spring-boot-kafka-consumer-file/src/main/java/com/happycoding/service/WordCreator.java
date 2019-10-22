@@ -14,7 +14,7 @@ public class WordCreator {
 	public void createWordDoc(List<String> list) {
 		XWPFDocument document = null;
 		if (!list.isEmpty()) {
-			String fileName = "C:\\Users\\SushantS7\\Desktop\\created-" + list.get(0);
+			String fileName = "D:\\kafka-consumer\\" + list.get(0);
 			try (OutputStream fileOut = new FileOutputStream(fileName)) {
 				document = new XWPFDocument();
 				for (int i = 1; i < list.size(); i++) {
